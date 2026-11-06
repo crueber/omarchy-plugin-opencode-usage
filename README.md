@@ -202,8 +202,8 @@ omarchy bar set crueber.opencode-usage barStyle text
   `opencodeCommand` setting.
 
 Nothing else is required: no API key, no extra packages, no service of its own,
-no sudo, and no network access beyond the local `opencode` CLI. The helper
-scripts use the tools Omarchy already ships (`bash`, `jq`).
+no elevated privileges, and no network access beyond the local `opencode` CLI.
+The helper scripts use the tools Omarchy already ships (`bash`, `jq`).
 
 ## Licence
 
