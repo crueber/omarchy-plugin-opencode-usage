@@ -26,6 +26,18 @@ OpenCode Go Usage — an Omarchy shell bar widget for OpenCode Go limits
   Forgejo repo `git.packden.us/crueber/omarchy-plugin-opencode-usage` is a
   read-only daily pull mirror; do not push to it.
 
+The mirror was created with tea:
+
+```bash
+tea repos migrate --login git.packden.us \
+  --name omarchy-plugin-opencode-usage --owner crueber \
+  --clone-url https://github.com/crueber/omarchy-plugin-opencode-usage.git \
+  --service git --mirror --mirror-interval 24h0m0s
+```
+
+Force a sync with `POST /api/v1/repos/crueber/omarchy-plugin-opencode-usage/mirror-sync`
+on the Forgejo API; otherwise it pulls once a day.
+
 ## Invariants
 
 1. **No API keys.** Data comes from the installed OpenCode service:

@@ -1,5 +1,7 @@
 # OpenCode Go Usage
 
+[![validate](https://github.com/crueber/omarchy-plugin-opencode-usage/actions/workflows/validate.yml/badge.svg)](https://github.com/crueber/omarchy-plugin-opencode-usage/actions/workflows/validate.yml)
+
 An Omarchy bar widget for your OpenCode Go allowance. It draws the OpenCode
 mark in the bar with three small meters — 5-hour session, week, and month — and
 opens a popup with percentages, reset countdowns, Console budgets, and local
