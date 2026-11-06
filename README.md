@@ -43,6 +43,15 @@ In the popup:
   from your local OpenCode history (`opencode stats --json`)
 - links to your Console usage page, and a refresh action
 
+### Credits and balance
+
+The popup shows Console budgets when your workspace has them, but it does not
+show a dollar credit balance. The local OpenCode API reports Go limits and
+Console budgets only; the Console credit balance lives behind the Console web
+session, not the installed CLI login. Open **Console → Settings › Billing** to
+check credits, or the **Go** page to turn on **Extra Usage**. The widget never
+invents an amount when the API does not report one.
+
 ## Install
 
 Clone the repo and run the installer:

@@ -83,6 +83,12 @@ on the Forgejo API; otherwise it pulls once a day.
 
 - The usage endpoint is experimental; update `Model.parseReport` if its shape
   changes.
+- The local usage response exposes Go meters and Console budgets only. It has no
+  balance/credit field, and the local service has no billing route. Console
+  credits live behind `GET https://opencode.ai/console/api/billing/status`
+  (`balanceMicroCents` / `availableMicroCents`), which requires a Console web
+  session and is not proxied by the installed CLI. Do not read `auth.json` or
+  invent a credits row; send users to Console Billing instead.
 - Default refresh is 5 minutes. If you lower it, keep the automatic floor at
   60 seconds and the manual floor at 30 seconds.
 - Bump `manifest.json` `version` for user-visible changes.

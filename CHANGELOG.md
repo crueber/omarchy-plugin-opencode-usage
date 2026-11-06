@@ -1,5 +1,10 @@
 # Changelog
 
+## Unreleased
+
+- Document that Console credits/balance are not exposed by the local OpenCode
+  API; the popup continues to show Console budgets only.
+
 ## 1.0.0 — 2026-11-05
 
 Initial release.
