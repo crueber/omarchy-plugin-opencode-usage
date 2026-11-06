@@ -1,0 +1,59 @@
+#!/usr/bin/env bash
+# Offline stand-in for the `opencode` CLI, used only for documentation
+# screenshots. It answers the two invocations the widget makes and refuses
+# everything else. No network, no credentials, no real account data.
+#
+# Every value below is invented. Reset times are relative to "now" so the
+# countdowns look alive in a capture. See demo/README.md.
+set -euo pipefail
+
+now_ms=$(( $(date +%s) * 1000 ))
+h=$(( 3600 * 1000 ))
+d=$(( 24 * h ))
+
+usage_json() {
+  cat <<JSON
+{
+  "workspace": {
+    "id": "ws_demo",
+    "name": "demo",
+    "usageURL": "https://opencode.ai/console"
+  },
+  "go": {
+    "rolling": { "percent": 24, "limited": false, "resetsAt": $(( now_ms + 4 * h + 11 * 60000 )) },
+    "weekly":  { "percent": 41, "limited": false, "resetsAt": $(( now_ms + 5 * d + 2 * h )) },
+    "monthly": { "percent": 9,  "limited": false, "resetsAt": $(( now_ms + 22 * d )) }
+  },
+  "budgets": []
+}
+JSON
+}
+
+stats_json() {
+  cat <<JSON
+{
+  "sessions": 7,
+  "prompts": 46,
+  "cost": 2.87,
+  "tokens": {
+    "input": 1900000,
+    "output": 96000,
+    "cache": { "read": 64200000, "write": 8100000 }
+  }
+}
+JSON
+}
+
+case "$*" in
+  "api GET /api/experimental/usage/limits"|\
+  "api --standalone GET /api/experimental/usage/limits")
+    usage_json
+    ;;
+  "stats --days 30 --json"|"stats --days 30 --json "*)
+    stats_json
+    ;;
+  *)
+    printf 'opencode-demo: unsupported invocation: %s\n' "$*" >&2
+    exit 64
+    ;;
+esac

@@ -4,6 +4,11 @@
 
 - Document that Console credits/balance are not exposed by the local OpenCode
   API; the popup continues to show Console budgets only.
+- README: add removal steps, explicit requirements/dependencies, and a privacy
+  note; add the standard `omarchy plugin add` install command.
+- Add `demo/` screenshot tooling: an offline `opencode` fixture plus a capture
+  script that backs up and restores the widget entry and cache, and refuses to
+  write a preview that still contains real account data.
 
 ## 1.0.0 — 2026-11-05
 

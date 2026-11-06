@@ -12,6 +12,9 @@ OpenCode Go Usage — an Omarchy shell bar widget for OpenCode Go limits
 - `preview.png`, `screenshots/bar.png` — README images.
 - `scripts/install.sh` — deploy to the live plugin directory.
 - `scripts/validate.sh` — manifest + required-file check used by CI.
+- `demo/` — offline `opencode` fixture and the capture script that produces the
+  anonymised README/marketplace images. See `demo/README.md`; never capture
+  real workspace data into `preview.png`.
 
 ## Source and deploy
 

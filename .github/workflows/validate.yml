@@ -15,4 +15,4 @@ jobs:
       - name: Validate manifest and required files
         run: ./scripts/validate.sh
       - name: Shellcheck scripts
-        run: shellcheck scripts/*.sh
+        run: shellcheck scripts/*.sh demo/*.sh

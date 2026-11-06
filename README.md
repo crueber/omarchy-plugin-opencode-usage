@@ -54,7 +54,14 @@ invents an amount when the API does not report one.
 
 ## Install
 
-Clone the repo and run the installer:
+Install it the standard Omarchy way:
+
+```bash
+omarchy plugin add https://github.com/crueber/omarchy-plugin-opencode-usage --enable
+```
+
+Or clone the repo and run the installer, which also places the widget in the
+right bar section:
 
 ```bash
 git clone https://github.com/crueber/omarchy-plugin-opencode-usage.git
@@ -83,6 +90,23 @@ build after a change, restart the shell once with `omarchy restart shell`.
 - **Right click** — open your Console usage page (or `onRightClick` if set)
 - **`r`** — refresh while the popup is open
 
+## Remove
+
+Disable and remove the widget, then clear its cache:
+
+```bash
+omarchy plugin disable crueber.opencode-usage
+omarchy plugin remove crueber.opencode-usage
+rm -rf ~/.cache/opencode-usage
+```
+
+`omarchy plugin remove` deletes the plugin directory after disabling it. The
+`rm` is optional — it only discards the cached response, so the last numbers do
+not linger on disk. The plugin writes nothing outside
+`~/.config/omarchy/plugins/crueber.opencode-usage/` and
+`~/.cache/opencode-usage/`; the bar layout itself lives in `shell.json` and is
+managed by Omarchy. A clone of this repository can be deleted as well.
+
 ## Caching and request pacing
 
 A shell restart creates a fresh QML engine, so the widget keeps its last
@@ -105,6 +129,27 @@ where OpenCode is not running yet — does not hammer the service.
 - One bar surface per monitor, but only the elected leader fetches; the others
   consume the published result.
 
+## Privacy
+
+No telemetry, no analytics, and no network requests of the widget's own. Every
+number comes from the local `opencode` CLI; with `--standalone` it starts a
+private server for that single request. The widget itself never reads, copies,
+or stores your OpenCode credentials — authentication stays with the CLI — and it
+has no API key or token of its own.
+
+The only file it writes is the cache:
+
+```
+~/.cache/opencode-usage/usage.json
+```
+
+It is created inside a mode-`0700` directory and holds the last reported
+workspace name, id, and usage URL, the limit percentages and reset timestamps,
+any Console budget amounts, the last request time, and the failure count.
+Nothing else — no prompts, session content, message text, or file paths.
+Delete the file or the directory at any time to clear it; the widget re-fetches
+on its next check.
+
 ## Development
 
 This repository is the source of truth; the live plugin is
@@ -117,6 +162,10 @@ safety) for anyone — human or agent — changing the plugin.
 ./scripts/validate.sh   # manifest + required files; also runs in CI
 ./scripts/install.sh    # copy to the live plugin dir and enable
 ```
+
+`demo/` holds an offline fixture that impersonates the `opencode` CLI so the
+preview and bar screenshots can be captured with invented data — no workspace,
+account, or usage numbers of a real install. See `demo/README.md`.
 
 ## Settings
 
@@ -145,10 +194,16 @@ omarchy bar set crueber.opencode-usage refreshIntervalSec 300
 omarchy bar set crueber.opencode-usage barStyle text
 ```
 
-## Requirements
+## Requirements and dependencies
 
-- Omarchy with the Omarchy shell bar
-- OpenCode v2.x, signed in to a workspace (`opencode auth list`)
+- Omarchy Quattro with the Omarchy shell bar.
+- OpenCode v2.x, signed in to a workspace (`opencode auth list`), with the
+  `opencode` executable on your login-shell PATH — or an absolute path in the
+  `opencodeCommand` setting.
+
+Nothing else is required: no API key, no extra packages, no service of its own,
+no sudo, and no network access beyond the local `opencode` CLI. The helper
+scripts use the tools Omarchy already ships (`bash`, `jq`).
 
 ## Licence
 
