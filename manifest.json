@@ -1,0 +1,126 @@
+{
+  "schemaVersion": 1,
+  "id": "crueber.opencode-usage",
+  "name": "OpenCode Go Usage",
+  "version": "1.0.0",
+  "author": "Chris Rueber",
+  "license": "MIT",
+  "description": "OpenCode Go allowance in the Omarchy bar: a custom OpenCode mark with meters for the 5-hour session, weekly, and monthly limits, plus a popup with percentages, reset countdowns, and local activity.",
+  "kinds": ["bar-widget"],
+  "entryPoints": { "barWidget": "Panel.qml" },
+  "barWidget": {
+    "displayName": "OpenCode Go Usage",
+    "description": "Bar pill with the OpenCode mark and three limit meters; click for percentages, reset times, Console budgets, and local activity.",
+    "category": "AI",
+    "aliases": ["opencode", "opencode-go", "opencode-usage", "go"],
+    "allowMultiple": false,
+    "defaultSection": "right",
+    "defaults": {
+      "barStyle": "bars",
+      "showSession": true,
+      "showWeekly": true,
+      "showMonthly": true,
+      "refreshIntervalSec": 300,
+      "warnPercent": 70,
+      "criticalPercent": 90,
+      "warningColor": "#f67400",
+      "criticalColor": "",
+      "opencodeCommand": "",
+      "showLocalStats": true,
+      "onRightClick": ""
+    },
+    "schema": [
+      {
+        "key": "barStyle",
+        "type": "enum",
+        "label": "Bar shows",
+        "options": ["bars", "text", "icon"],
+        "defaultValue": "bars",
+        "description": "bars: the mark plus one meter per limit; text: percentages instead of meters; icon: just the mark."
+      },
+      {
+        "key": "showSession",
+        "type": "boolean",
+        "label": "Show 5-hour session limit",
+        "defaultValue": true
+      },
+      {
+        "key": "showWeekly",
+        "type": "boolean",
+        "label": "Show weekly limit",
+        "defaultValue": true
+      },
+      {
+        "key": "showMonthly",
+        "type": "boolean",
+        "label": "Show monthly limit",
+        "defaultValue": true
+      },
+      {
+        "key": "refreshIntervalSec",
+        "type": "integer",
+        "label": "Refresh interval (seconds)",
+        "min": 60,
+        "max": 3600,
+        "step": 60,
+        "defaultValue": 300,
+        "description": "How often to ask for fresh limits. Five minutes is the default; the widget also keeps a disk cache so shell restarts do not cause extra requests."
+      },
+      {
+        "key": "warnPercent",
+        "type": "integer",
+        "label": "Warning threshold (%)",
+        "min": 0,
+        "max": 100,
+        "step": 5,
+        "defaultValue": 70,
+        "description": "Meters turn the warning colour at this percentage."
+      },
+      {
+        "key": "criticalPercent",
+        "type": "integer",
+        "label": "Critical threshold (%)",
+        "min": 0,
+        "max": 100,
+        "step": 5,
+        "defaultValue": 90,
+        "description": "Meters turn the urgent colour at this percentage."
+      },
+      {
+        "key": "warningColor",
+        "type": "string",
+        "label": "Warning colour",
+        "defaultValue": "#f67400",
+        "description": "Hex colour; empty keeps the theme foreground."
+      },
+      {
+        "key": "criticalColor",
+        "type": "string",
+        "label": "Critical colour",
+        "defaultValue": "",
+        "description": "Hex colour; empty uses the theme's urgent colour."
+      },
+      {
+        "key": "opencodeCommand",
+        "type": "path",
+        "label": "opencode executable",
+        "defaultValue": "",
+        "description": "Optional. Path to the opencode binary; empty finds opencode in your login shell PATH."
+      },
+      {
+        "key": "showLocalStats",
+        "type": "boolean",
+        "label": "Show local activity in the popup",
+        "defaultValue": true,
+        "description": "Adds prompts, sessions, tokens, and estimated cost from your local OpenCode history (last 30 days)."
+      },
+      {
+        "key": "onRightClick",
+        "type": "string",
+        "label": "Right-click command",
+        "defaultValue": "",
+        "description": "Optional shell command; empty opens your OpenCode Console usage page."
+      }
+    ]
+  }
+}
