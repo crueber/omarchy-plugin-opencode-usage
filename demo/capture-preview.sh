@@ -23,6 +23,7 @@
 # Requirements: omarchy, omarchy-shell, jq, grim, ImageMagick (magick),
 # tesseract. Runs on the live session; the panel is opened and closed once.
 set -euo pipefail
+umask 077
 
 repo_dir=$(cd -- "$(dirname -- "${BASH_SOURCE[0]}")/.." && pwd)
 plugin=crueber.opencode-usage
@@ -31,9 +32,10 @@ config_home=${XDG_CONFIG_HOME:-$HOME/.config}
 cache_home=${XDG_CACHE_HOME:-$HOME/.cache}
 shell_json="$config_home/omarchy/shell.json"
 cache_file="$cache_home/opencode-usage/usage.json"
-work=${OPENCODE_USAGE_CAPTURE_DIR:-${TMPDIR:-/tmp}/opencode-usage-capture}
-shots="$work/shots"
-backup="$work/backup"
+work=""
+work_auto=0
+shots=""
+backup=""
 
 out=$repo_dir
 accent_arg=""
@@ -63,6 +65,39 @@ note() { printf '==> %s\n' "$*"; }
 
 usage() { sed -n '2,24p' "$0" | sed 's/^# \{0,1\}//'; }
 
+# All backups live in a private directory, never a predictable /tmp path. The
+# optional override is accepted only when it is a real directory owned by the
+# current user and inaccessible to group/other.
+prepare_workdir() {
+  local requested="${OPENCODE_USAGE_CAPTURE_DIR:-}" mode
+  if [[ -n $requested ]]; then
+    if [[ ! -e $requested ]]; then
+      mkdir -m 700 -- "$requested" || die "cannot create $requested"
+    fi
+    work=$requested
+  else
+    work=$(mktemp -d -- "${TMPDIR:-/tmp}/opencode-usage-capture.XXXXXX") \
+      || die "cannot create a private capture directory"
+    work_auto=1
+  fi
+
+  [[ -d $work && ! -L $work ]] || die "capture directory is not a real directory: $work"
+  [[ -O $work ]] || die "capture directory is not owned by you: $work"
+  mode=$(stat -c '%a' "$work") || die "cannot stat $work"
+  (( (8#$mode & 8#077) == 0 )) || die "capture directory must not be group/world accessible: $work ($mode)"
+
+  shots="$work/shots"
+  backup="$work/backup"
+  mkdir -p -m 700 -- "$shots" "$backup" || die "cannot create capture directories"
+  local dir
+  for dir in "$shots" "$backup"; do
+    [[ -d $dir && ! -L $dir ]] || die "unsafe capture directory: $dir"
+    [[ -O $dir ]] || die "capture directory is not owned by you: $dir"
+    mode=$(stat -c '%a' "$dir") || die "cannot stat $dir"
+    (( (8#$mode & 8#077) == 0 )) || die "capture directory must not be group/world accessible: $dir ($mode)"
+  done
+}
+
 while (( $# > 0 )); do
   case "$1" in
     --out) out=${2:?--out needs a directory}; shift 2 ;;
@@ -90,14 +125,12 @@ state_entry() {
 }
 
 backup_state() {
-  mkdir -p "$backup" "$shots"
-  cp -p "$shell_json" "$backup/shell.json"
   local entry
   entry=$(state_entry)
   [ -n "$entry" ] || die "$plugin is not on the bar; enable it before capturing"
   printf '%s\n' "$entry" >"$backup/entry.json"
   if [ -f "$cache_file" ]; then
-    cp -p "$cache_file" "$backup/usage.json"
+    install -m 0600 "$cache_file" "$backup/usage.json"
   else
     rm -f "$backup/usage.json"
   fi
@@ -132,16 +165,22 @@ restore_state() {
 finish() {
   local rc=$?
   trap - EXIT INT TERM
+  [[ -n $work ]] || exit "$rc"
   if (( ! skip_restore )); then
-    restore_state || note "restore failed; check $backup and shell.json"
+    restore_state || note "restore failed; check $backup"
   fi
-  if (( ! keep_raw )); then
+  if (( keep_raw )); then
+    note "kept raw capture state at $work"
+  elif (( work_auto )); then
     if (( rc == 0 && ! skip_restore )); then
-      rm -rf "$work"
+      rm -rf -- "$work"
     else
-      # Keep the backups and the raw shots so a failed run can be diagnosed.
-      rm -f "$shots"/*.png 2>/dev/null || true
+      # Keep the private backups for diagnosis; drop the large raw shots.
+      rm -f -- "$shots"/*.png 2>/dev/null || true
+      note "capture state kept at $work"
     fi
+  else
+    note "left capture state at $work"
   fi
   exit "$rc"
 }
@@ -420,7 +459,7 @@ publish() {
 }
 
 main() {
-  mkdir -p "$work" "$shots"
+  prepare_workdir
   backup_state
   apply_fixture
 
